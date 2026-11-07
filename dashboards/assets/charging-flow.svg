@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+  <title>Laddindikering för kabel och ljusring</title>
+  <desc>Färgen ärvs från Grafanas laddstatusfält. Detta lager innehåller inga egna statusvärden.</desc>
+  <!-- An inherited fill colors both the ring and the cable through a mask. -->
+  <defs>
+    <mask id="charging-flow-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="650">
+      <circle cx="571" cy="215" r="22.5" fill="none" stroke="white" stroke-width="2.8"/>
+      <path d="M571 300V338C571 379 644 384 657 339L672 292C680 271 688 270 710 274" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <path d="M339 305V352H538V328" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <path d="M0 0H1200V650H0Z" mask="url(#charging-flow-mask)"/>
+</svg>

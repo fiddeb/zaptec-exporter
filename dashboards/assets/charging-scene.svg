@@ -151,6 +151,6 @@
     <text x="61" y="592">Momentan avläsning</text>
     <text x="442" y="592">Momentan avläsning</text>
     <text x="823" y="592">Löpande dygnsenergi</text>
-    <text x="600" y="634" text-anchor="middle">— = ingen färsk observation · Illustrationen visar ingen batterinivå eller laddstatus</text>
+    <text x="600" y="634" text-anchor="middle">Grön kabel och ring = bekräftad laddning · Grå = ingen laddning eller status saknas · — = mätvärde saknas</text>
   </g>
 </svg>
