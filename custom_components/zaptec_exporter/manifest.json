@@ -1,0 +1,12 @@
+{
+  "domain": "zaptec_exporter",
+  "name": "Zaptec Exporter",
+  "version": "0.1.0",
+  "codeowners": ["@fiddeb"],
+  "config_flow": true,
+  "documentation": "https://github.com/fiddeb/zaptec-exporter",
+  "issue_tracker": "https://github.com/fiddeb/zaptec-exporter/issues",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "requirements": ["prometheus-client==0.21.0"]
+}

@@ -1,0 +1,7 @@
+/zaptec-history.json
+/.zaptec-history-*
+/zaptec-exporter
+/config.json
+/dist/
+__pycache__/
+.pytest_cache/

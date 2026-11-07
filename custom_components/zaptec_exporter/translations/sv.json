@@ -1,0 +1,14 @@
+{
+  "title": "Zaptec Exporter",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Anslut till Zaptec Exporter",
+        "description": "Läs exporterns lokala cache. Uppgifter för Zaptec och Grafana anges i appen, inte här.",
+        "data": {"url": "Exporterns URL", "max_age": "Högsta ålder på API-hämtning (sekunder)"}
+      }
+    },
+    "error": {"cannot_connect": "Kunde inte läsa giltiga Zaptec-mätvärden. Kontrollera URL och appens loggar."},
+    "abort": {"already_configured": "Den här exportern är redan konfigurerad."}
+  }
+}

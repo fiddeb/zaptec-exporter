@@ -1,0 +1,21 @@
+prometheus.scrape "zaptec" {
+  targets = [{
+    __address__ = "127.0.0.1:8080",
+    job         = "zaptec",
+    instance    = sys.env("ZAPTEC_INSTANCE"),
+  }]
+  metrics_path    = "/metrics"
+  scrape_interval = sys.env("ZAPTEC_SCRAPE_INTERVAL")
+  scrape_timeout  = "5s"
+  forward_to      = [prometheus.remote_write.cloud.receiver]
+}
+
+prometheus.remote_write "cloud" {
+  endpoint {
+    url = sys.env("GRAFANA_CLOUD_METRICS_URL")
+    basic_auth {
+      username = sys.env("GRAFANA_CLOUD_METRICS_USER")
+      password = sys.env("GRAFANA_CLOUD_METRICS_TOKEN")
+    }
+  }
+}

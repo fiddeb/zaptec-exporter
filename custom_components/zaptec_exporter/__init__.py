@@ -1,0 +1,18 @@
+"""Read-only Home Assistant entities from Zaptec Exporter's local cache."""
+from homeassistant.const import Platform
+
+from .coordinator import ExporterCoordinator
+
+PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR]
+
+
+async def async_setup_entry(hass, entry):
+    coordinator = ExporterCoordinator(hass, entry)
+    await coordinator.async_config_entry_first_refresh()
+    entry.runtime_data = coordinator
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    return True
+
+
+async def async_unload_entry(hass, entry):
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

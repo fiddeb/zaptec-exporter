@@ -1,0 +1,50 @@
+name: Zaptec Cloud telemetry
+version: "0.1.0"
+slug: zaptec_cloud
+description: Zaptec and Sense metrics with optional Grafana Alloy remote write
+url: https://github.com/fiddeb/zaptec-exporter
+arch:
+  - aarch64
+  - amd64
+startup: application
+boot: auto
+init: false
+timeout: 45
+ports:
+  8080/tcp: null
+ports_description:
+  8080/tcp: Optional Prometheus metrics access from outside the app network
+options:
+  username: ""
+  password: ""
+  charger_id: ""
+  poll_interval: 300
+  history_enabled: true
+  history_from: "1970-01-01T00:00:00Z"
+  history_interval: 300
+  sense_enabled: false
+  sense_interval: 300
+  sense_timezone: Europe/Stockholm
+  cloud_enabled: true
+  metrics_url: ""
+  metrics_user: ""
+  metrics_token: ""
+  instance: homeassistant
+  scrape_interval: 60
+schema:
+  username: str
+  password: password
+  charger_id: str
+  poll_interval: int(300,86400)
+  history_enabled: bool
+  history_from: str
+  history_interval: int(300,86400)
+  sense_enabled: bool
+  sense_interval: int(300,86400)
+  sense_timezone: str
+  cloud_enabled: bool
+  metrics_url: str?
+  metrics_user: str?
+  metrics_token: password?
+  instance: str
+  scrape_interval: int(15,3600)

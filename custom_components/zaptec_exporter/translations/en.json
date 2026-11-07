@@ -1,0 +1,14 @@
+{
+  "title": "Zaptec Exporter",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Zaptec Exporter",
+        "description": "Read the local exporter's cached metrics. Zaptec and Grafana credentials are configured in the app, not here.",
+        "data": {"url": "Exporter URL", "max_age": "Maximum API snapshot age (seconds)"}
+      }
+    },
+    "error": {"cannot_connect": "Could not read a valid Zaptec exporter snapshot. Check its URL and app logs."},
+    "abort": {"already_configured": "This exporter is already configured."}
+  }
+}
