@@ -37,9 +37,16 @@ def validate(builder):
             assert scene.attrib["viewBox"] == "0 0 1200 650"
             names = {q["legendFormat"] for q in panel["targets"]}
             for element in panel["options"]["root"]["elements"]:
+                if element["type"] == "icon":
+                    assert element["config"]["fill"]["field"] == "Charging state"
+                    assert element["config"]["fill"]["fixed"] == "#66747D"
+                    assert re.fullmatch(r"https://raw\.githubusercontent\.com/fiddeb/zaptec-exporter/[0-9a-f]{40}/dashboards/assets/charging-flow\.svg", element["config"]["path"]["fixed"]), "Pin the published flow layer revision"
+                    continue
                 text = element["config"]["text"]
                 if text["mode"] == "field":
                     assert text["field"] in names, f"Unbound canvas field {text['field']}"
+                    assert element["type"] == "text", "Metric-value ignores missing-field fallback"
+                    assert text["fixed"] in ("—", "Status saknas"), "Missing fields need explicit fallback text"
     for tab in builder.tabs:
         positions = [p["gridPos"] for p in tab["panels"]]
         for i, rect in enumerate(positions):
@@ -73,9 +80,25 @@ def promtool_tests(builder):
             inputs.append({"series": f"zaptec_charge_power_watts{{{car_labels}}}", "values": samples})
         cases.append({"name": name, "input_series": inputs, "promql_expr_test": [{"expr": expression,
             "eval_time": "0m", "exp_samples": [] if expected is None else [{"labels": "{" + car_labels + "}", "value": expected}]}]})
+    for name, mode, power, source_up, scrape_up, expected in (
+        ("charging-mode", 3, 7400, 1, 1, 1), ("waiting-mode", 2, 0, 1, 1, 0),
+        ("mode-precedes-power", 2, 7400, 1, 1, 0),
+        ("power-fallback", None, 7400, 1, 1, 1), ("zero-power", None, 0, 1, 1, 0),
+        ("unknown-status", None, None, 1, 1, -1), ("failed-charger", 3, 7400, 0, 1, -1),
+        ("failed-scrape", 3, 7400, 1, 0, -1),
+    ):
+        inputs = [{"series": f"zaptec_exporter_up{{{labels}}}", "values": str(source_up)},
+                  {"series": f"up{{{labels}}}", "values": str(scrape_up)},
+                  # The house consuming power must never turn the charging cable green.
+                  {"series": f'zaptec_sense_power_watts{{{labels},installation_id="test-installation"}}', "values": "9000"}]
+        for metric, value in (("zaptec_charger_operation_mode", mode), ("zaptec_charge_power_watts", power)):
+            if value is not None:
+                inputs.append({"series": f"{metric}{{{car_labels}}}", "values": str(value)})
+        cases.append({"name": name, "input_series": inputs, "promql_expr_test": [{"expr": resolved(dashboard.charging_state()),
+            "eval_time": "0m", "exp_samples": [{"labels": "{}", "value": expected}]}]})
     # Every panel expression is parsed and evaluated by Prometheus, even without matching series.
     cases.append({"name": "all-panel-queries", "promql_expr_test": [
-        {"expr": expr, "eval_time": "0m", "exp_samples": []}
+        {"expr": expr, "eval_time": "0m", "exp_samples": [{"labels": "{}", "value": -1}] if expr == resolved(dashboard.charging_state()) else []}
         for expr in sorted({resolved(q["expr"]) for p in builder.panels for q in p["targets"]})]})
     return {"rule_files": [], "evaluation_interval": "1m", "tests": cases}
 

@@ -130,6 +130,28 @@
                       }
                     }
                   }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "F",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "max(((zaptec_charger_operation_mode{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)) == bool 3) or max(((zaptec_charge_power_watts{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)) > bool 0) or vector(-1)",
+                        "instant": true,
+                        "range": false,
+                        "legendFormat": "Charging state"
+                      }
+                    }
+                  }
                 }
               ],
               "transformations": [],
@@ -182,6 +204,53 @@
                       {
                         "id": "unit",
                         "value": "suffix:kWh"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Charging state"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 0
+                      },
+                      {
+                        "id": "color",
+                        "value": {
+                          "mode": "thresholds"
+                        }
+                      },
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "type": "value",
+                            "options": {
+                              "-1": {
+                                "text": "Status saknas",
+                                "color": "#66747D",
+                                "index": 0
+                              },
+                              "0": {
+                                "text": "Ingen laddning",
+                                "color": "#84939C",
+                                "index": 1
+                              },
+                              "1": {
+                                "text": "Laddar",
+                                "color": "#73D9B1",
+                                "index": 2
+                              }
+                            }
+                          }
+                        ]
                       }
                     ]
                   }
@@ -237,7 +306,7 @@
                           "fixed": "transparent"
                         },
                         "image": {
-                          "fixed": "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/426050af085f97ce8c6c78b97c0b488cd6af60a8/dashboards/assets/charging-scene.svg"
+                          "fixed": "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/b7f9b78f6d5851863d3a6d4e3584f2571afd3046/dashboards/assets/charging-scene.svg"
                         },
                         "size": "fill"
                       },
@@ -262,8 +331,37 @@
                       }
                     },
                     {
+                      "name": "charging-flow",
+                      "type": "icon",
+                      "placement": {
+                        "left": 0,
+                        "top": 0,
+                        "width": 1200,
+                        "height": 650
+                      },
+                      "constraint": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "background": {
+                        "color": {
+                          "fixed": "transparent"
+                        }
+                      },
+                      "config": {
+                        "path": {
+                          "mode": "fixed",
+                          "fixed": "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/b7f9b78f6d5851863d3a6d4e3584f2571afd3046/dashboards/assets/charging-flow.svg"
+                        },
+                        "fill": {
+                          "field": "Charging state",
+                          "fixed": "#66747D"
+                        }
+                      }
+                    },
+                    {
                       "name": "house-power",
-                      "type": "metric-value",
+                      "type": "text",
                       "placement": {
                         "left": 61,
                         "top": 520,
@@ -295,14 +393,14 @@
                         },
                         "text": {
                           "mode": "field",
-                          "fixed": "",
+                          "fixed": "—",
                           "field": "Installation kW"
                         }
                       }
                     },
                     {
                       "name": "charger-power",
-                      "type": "metric-value",
+                      "type": "text",
                       "placement": {
                         "left": 442,
                         "top": 520,
@@ -334,14 +432,14 @@
                         },
                         "text": {
                           "mode": "field",
-                          "fixed": "",
+                          "fixed": "—",
                           "field": "Charge kW"
                         }
                       }
                     },
                     {
                       "name": "car-today",
-                      "type": "metric-value",
+                      "type": "text",
                       "placement": {
                         "left": 823,
                         "top": 520,
@@ -373,14 +471,14 @@
                         },
                         "text": {
                           "mode": "field",
-                          "fixed": "",
+                          "fixed": "—",
                           "field": "Today kWh"
                         }
                       }
                     },
                     {
                       "name": "limit-value",
-                      "type": "metric-value",
+                      "type": "text",
                       "placement": {
                         "left": 76,
                         "top": 393,
@@ -412,14 +510,14 @@
                         },
                         "text": {
                           "mode": "field",
-                          "fixed": "",
+                          "fixed": "—",
                           "field": "Limit kW"
                         }
                       }
                     },
                     {
                       "name": "session-value",
-                      "type": "metric-value",
+                      "type": "text",
                       "placement": {
                         "left": 882,
                         "top": 393,
@@ -451,8 +549,48 @@
                         },
                         "text": {
                           "mode": "field",
-                          "fixed": "",
+                          "fixed": "—",
                           "field": "Last session kWh"
+                        }
+                      }
+                    },
+                    {
+                      "name": "charging-status",
+                      "type": "text",
+                      "placement": {
+                        "left": 490,
+                        "top": 132,
+                        "width": 170,
+                        "height": 22
+                      },
+                      "constraint": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "background": {
+                        "color": {
+                          "fixed": "transparent"
+                        }
+                      },
+                      "border": {
+                        "color": {
+                          "fixed": "transparent"
+                        },
+                        "width": 0,
+                        "radius": 0
+                      },
+                      "config": {
+                        "align": "center",
+                        "valign": "middle",
+                        "size": 13,
+                        "color": {
+                          "field": "Charging state",
+                          "fixed": "#66747D"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "fixed": "Status saknas",
+                          "field": "Charging state"
                         }
                       }
                     }

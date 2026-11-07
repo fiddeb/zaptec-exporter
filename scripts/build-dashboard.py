@@ -6,12 +6,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 UID = "zaptec-charging"
 # Canvas resolves data: URLs as relative build assets. Use its supported HTTPS image source.
-SCENE_URL = "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/426050af085f97ce8c6c78b97c0b488cd6af60a8/dashboards/assets/charging-scene.svg"
+SCENE_URL = "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/b7f9b78f6d5851863d3a6d4e3584f2571afd3046/dashboards/assets/charging-scene.svg"
+FLOW_URL = "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/b7f9b78f6d5851863d3a6d4e3584f2571afd3046/dashboards/assets/charging-flow.svg"
 DS = {"type": "prometheus", "uid": "${datasource}"}
 WHITE, MUTED, TEAL, BLUE, AMBER = "#F4F5F8", "#A8B3C7", "#73D9B1", "#80B6FF", "#EAC075"
 PHASE_COLORS = {"Fas 1": AMBER, "Fas 2": TEAL, "Fas 3": BLUE}
 MODE_MAP = {1: ("Ingen bil ansluten", "gray"), 2: ("Väntar på laddning", "orange"),
             3: ("Laddar", "green"), 5: ("Laddning avslutad", "blue")}
+CHARGING_COLORS = {-1: ("Status saknas", "#66747D"), 0: ("Ingen laddning", "#84939C"),
+                   1: ("Laddar", "#73D9B1")}
 
 
 def selector(metric, scope=None, **labels):
@@ -32,6 +35,13 @@ def current(metric, source, scope=None, scale=None, **labels):
     if scale:
         expression += f" / {scale}"
     return f"({expression}) and on (job, instance) ({health(source)} == 1) and on (job, instance) ({selector('up')} == 1)"
+
+
+def charging_state():
+    """Use fresh charger status, then charger power; -1 explicitly means unknown."""
+    mode = current("zaptec_charger_operation_mode", "charger", "charger")
+    power = current("zaptec_charge_power_watts", "charger", "charger")
+    return f"max(({mode}) == bool 3) or max(({power}) > bool 0) or vector(-1)"
 
 
 def mapping(values):
@@ -118,6 +128,7 @@ def add_canvas(b):
         ("Today kWh",current("zaptec_sense_charge_energy_kwh","sense","sense",period="today")),
         ("Last session kWh",current("zaptec_charge_last_session_energy_kwh","history","charger")),
         ("Limit kW",current("zaptec_sense_power_limit_watts","sense","sense",1000)),
+        ("Charging state", charging_state()),
     ]
     elements = []
     def add(*args,**kwargs): elements.append(canvas_element(*args,**kwargs))
@@ -125,6 +136,13 @@ def add_canvas(b):
     # A full-size image element keeps zoom-to-content from cropping to the value fields.
     add("charging-scene", "rectangle", 0, 0, 1200, 650)
     elements[-1]["background"].update(image={"fixed": SCENE_URL}, size="fill")
+    # The SVG inherits its fill from Canvas; missing/idle observations stay neutral.
+    elements.append({"name": "charging-flow", "type": "icon",
+        "placement": {"left": 0, "top": 0, "width": 1200, "height": 650},
+        "constraint": {"horizontal": "left", "vertical": "top"},
+        "background": {"color": {"fixed": "transparent"}},
+        "config": {"path": {"mode": "fixed", "fixed": FLOW_URL},
+                   "fill": {"field": "Charging state", "fixed": "#66747D"}}})
     for name, field, x, y, w, h, size in (
         ("house-power", "Installation kW", 61, 520, 310, 58, 42),
         ("charger-power", "Charge kW", 442, 520, 310, 58, 42),
@@ -132,10 +150,16 @@ def add_canvas(b):
         ("limit-value", "Limit kW", 76, 393, 210, 35, 23),
         ("session-value", "Last session kWh", 882, 393, 260, 35, 23),
     ):
-        add(name, "metric-value", x, y, w, h, field=field, size=size)
+        # The metric-value element overrides noValue with 'Field not found'.
+        # Text elements use the same formatted field with an actual missing-field fallback.
+        add(name, "text", x, y, w, h, text="—", field=field, size=size)
+    add("charging-status", "text", 490, 132, 170, 22, text="Status saknas", field="Charging state", size=13)
+    elements[-1]["config"]["color"] = {"field": "Charging state", "fixed": "#66747D"}
     config=fields("suffix:kW",2,"—")
     config["defaults"]["color"]={"mode":"fixed","fixedColor":WHITE}
     for name in ("Today kWh","Last session kWh"):override(config,name,unit="suffix:kWh")
+    override(config, "Charging state", unit="short", decimals=0,
+             color={"mode": "thresholds"}, mappings=mapping(CHARGING_COLORS))
     b.panel("Laddningen · fastighet, laddbox och bil","canvas",[query(expr,name,True,chr(65+i)) for i,(name,expr) in enumerate(expressions)],
         0,0,15,16,config,{"inlineEditing":False,"panZoom":False,"zoomToContent":True,"showAdvancedTypes":False,
             "tooltip":{"disableForOneClick":False},"root":{"type":"frame","name":"Zaptec charging",

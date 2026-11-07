@@ -9,8 +9,20 @@ Systembilden använder en egen [SVG-illustration](assets/charging-scene.svg) med
 villa, svart Zaptec-box och röd/svart Multivan. Bilden laddas via en offentlig
 HTTPS-adress på GitHub, låst till en bestämd commit. Grafana behöver kunna ladda
 bilder från `raw.githubusercontent.com`. Ingen egen bildserver eller extra
-Grafana-plugin behövs. Effekt och energi är vanliga dynamiska Canvas-fält ovanpå
-bilden. Illustrationen visar ingen faktisk anslutnings- eller laddstatus.
+Grafana-plugin behövs. Effekt och energi är dynamiska Canvas-textfält ovanpå
+bilden. Saknade fält visas som `—`; ett faktiskt rapporterat nollvärde visas som noll.
+
+Kabel och ljusring är ett separat SVG-lager som färgas av Grafana:
+
+- **Grönt / Laddar:** färskt laddläge är `3`, eller positiv laddareffekt när
+  laddläge saknas.
+- **Grått / Ingen laddning:** färskt laddläge anger annat än laddning, eller
+  laddareffekten är noll när laddläge saknas.
+- **Grått / Status saknas:** aktuellt laddläge och laddareffekt saknas, eller
+  hämtning/skrapning har misslyckats. Inga gamla värden används som aktuell status.
+
+Laddläget har företräde framför effekt när båda finns. Sense:s fastighetseffekt
+styr aldrig laddindikeringen. Batterinivå och fysisk kabelanslutning antas inte.
 
 Canvas tolkar base64-kodade `data:image/...`-adresser som relativa sökvägar och
 lägger till sin `public/build/`-sökväg. Tidigare dashboardfiler med inbäddad SVG
@@ -76,6 +88,6 @@ Testfilen använder syntetiska laddar-ID:n och kontrollerar bland annat
 noll, saknade mätvärden och fel i hämtning/skrapning. Ingen autentisering eller
 privat laddhistorik finns i dashboardfilerna.
 
-Vid ändringar i illustrationen: publicera SVG:n, uppdatera den fasta revisionen
-i `SCENE_URL` och generera om dashboardfilerna. Då hålls illustration och
+Vid ändringar i illustrationen: publicera SVG-filerna, uppdatera de fasta revisionerna
+i `SCENE_URL` och `FLOW_URL` och generera om dashboardfilerna. Då hålls illustration och
 mätvärdenas positioner tillsammans även när nästa bildversion publiceras.
