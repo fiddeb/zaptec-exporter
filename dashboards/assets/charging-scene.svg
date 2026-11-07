@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" fill="none">
+  <title>Zaptec — fastighet, laddbox och bil</title>
+  <desc>En villa i kvällsljus, en svart Zaptec-box och en röd och svart Multivan. Grafana lägger aktuella mätvärden ovanpå de tomma värdefälten.</desc>
+  <defs>
+    <linearGradient id="sky" x2="1200" y2="650" gradientUnits="userSpaceOnUse"><stop stop-color="#111D2D"/><stop offset=".55" stop-color="#101721"/><stop offset="1" stop-color="#101B23"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#427FA0" stop-opacity=".16"/><stop offset="1" stop-color="#427FA0" stop-opacity="0"/></radialGradient>
+    <linearGradient id="wall" x1="150" y1="150" x2="360" y2="340" gradientUnits="userSpaceOnUse"><stop stop-color="#34485D"/><stop offset="1" stop-color="#1B2A3B"/></linearGradient>
+    <linearGradient id="roof" x1="74" y1="142" x2="340" y2="203" gradientUnits="userSpaceOnUse"><stop stop-color="#5B7289"/><stop offset="1" stop-color="#293B50"/></linearGradient>
+    <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#E7B96E"/><stop offset="1" stop-color="#9C713A"/></linearGradient>
+    <linearGradient id="charger" x1="510" y1="160" x2="630" y2="337" gradientUnits="userSpaceOnUse"><stop stop-color="#303438"/><stop offset=".4" stop-color="#1B1F23"/><stop offset="1" stop-color="#25292D"/></linearGradient>
+    <linearGradient id="van-red" x1="760" y1="245" x2="825" y2="337" gradientUnits="userSpaceOnUse"><stop stop-color="#C94758"/><stop offset=".4" stop-color="#9F243B"/><stop offset="1" stop-color="#4B1328"/></linearGradient>
+    <linearGradient id="van-black" x1="720" y1="163" x2="900" y2="248" gradientUnits="userSpaceOnUse"><stop stop-color="#41484B"/><stop offset=".3" stop-color="#222A2F"/><stop offset="1" stop-color="#0C141B"/></linearGradient>
+    <linearGradient id="van-front" x1="1020" y1="247" x2="1040" y2="339" gradientUnits="userSpaceOnUse"><stop stop-color="#B53349"/><stop offset=".5" stop-color="#7F1A30"/><stop offset="1" stop-color="#411223"/></linearGradient>
+    <linearGradient id="windows" x1="820" y1="194" x2="950" y2="259" gradientUnits="userSpaceOnUse"><stop stop-color="#294558"/><stop offset="1" stop-color="#101D2B"/></linearGradient>
+    <linearGradient id="card" x2="1" y2="1"><stop stop-color="#1C2B3C"/><stop offset="1" stop-color="#142131"/></linearGradient>
+    <linearGradient id="charge-card" x2="1" y2="1"><stop stop-color="#19342F"/><stop offset="1" stop-color="#142622"/></linearGradient>
+    <pattern id="grid" width="52" height="26" patternUnits="userSpaceOnUse" patternTransform="skewX(-28)"><path d="M52 0H0V26" stroke="#52748C" stroke-opacity=".08"/></pattern>
+    <filter id="soft"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="shadow" x="-.3" y="-.3" width="1.6" height="1.6"><feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#030A12" flood-opacity=".55"/></filter>
+  </defs>
+  <rect x="1" y="1" width="1198" height="648" rx="24" fill="url(#sky)" stroke="#2D3D50"/>
+  <ellipse cx="260" cy="180" rx="370" ry="230" fill="url(#halo)"/>
+  <ellipse cx="900" cy="310" rx="320" ry="200" fill="url(#halo)"/>
+  <path d="M30 340H1170V450H30Z" fill="url(#grid)"/>
+  <g font-family="Inter,DejaVu Sans,sans-serif">
+    <text x="42" y="49" fill="#EAF2F8" font-size="22" font-weight="600" letter-spacing="1.5">LADDNING HEMMA</text>
+    <text x="42" y="76" fill="#8295AA" font-size="13" letter-spacing="1">ZAPTEC · ENERGIÖVERSIKT</text>
+    <rect x="1023" y="28" width="133" height="29" rx="14" fill="#203029" stroke="#3D5D4B"/>
+    <text x="1089" y="47" text-anchor="middle" fill="#B6C9BB" font-size="11" letter-spacing="1.5">AC-LADDNING</text>
+    <text x="109" y="123" fill="#A9BACD" font-size="12" font-weight="600" letter-spacing="2.5">FASTIGHETEN</text>
+    <text x="526" y="123" fill="#A9BACD" font-size="12" font-weight="600" letter-spacing="2.5">LADDBOXEN</text>
+    <text x="916" y="123" fill="#A9BACD" font-size="12" font-weight="600" letter-spacing="2.5">BILEN</text>
+  </g>
+  <!-- The architectural illustration is decorative, not a charging-state indicator. -->
+  <ellipse cx="231" cy="344" rx="170" ry="18" fill="#050C15" opacity=".65"/>
+  <g filter="url(#shadow)">
+    <path d="M98 223L226 148L349 218V333H98Z" fill="url(#wall)" stroke="#668096" stroke-width="1.5"/>
+    <path d="M226 148L349 218L385 201L258 127Z" fill="#1C2A3A" stroke="#3E556C"/>
+    <path d="M64 220L224 121L385 201L349 223L226 154L98 236Z" fill="url(#roof)" stroke="#70889C" stroke-width="1.5"/>
+    <path d="M349 223L385 201V315L349 333Z" fill="#152333" stroke="#3E556C"/>
+    <path d="M105 245H342M105 265H342M105 285H342M105 305H342" stroke="#748FA6" stroke-opacity=".13"/>
+    <path d="M130 230H192V294H130Z" fill="url(#glass)" stroke="#6E7C7E" stroke-width="4"/>
+    <path d="M161 232V293M130 262H192" stroke="#4F514B" stroke-width="3"/>
+    <path d="M252 224H312V286H252Z" fill="url(#glass)" stroke="#6E7C7E" stroke-width="4"/>
+    <path d="M282 226V285M252 255H312" stroke="#4F514B" stroke-width="3"/>
+    <path d="M211 269H239V332H211Z" fill="#142232" stroke="#688198"/>
+    <circle cx="232" cy="300" r="2" fill="#D5B673"/>
+    <path d="M89 335H350" stroke="#8798A5" stroke-width="3"/>
+    <path d="M285 146L298 125L312 134V160" fill="#2B3F52" stroke="#698298"/>
+  </g>
+  <path d="M131 302L161 316L192 302V331H131Z" fill="#F6BF67" opacity=".09" filter="url(#soft)"/>
+  <!-- Sense meter and supply path -->
+  <rect x="326" y="266" width="26" height="38" rx="5" fill="#14202C" stroke="#8299AA"/>
+  <rect x="331" y="273" width="16" height="9" rx="2" fill="#7FAAB2"/>
+  <path d="M339 305V352H538V328" stroke="#263E4C" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M339 305V352H538V328" stroke="#85ADBB" stroke-opacity=".65" stroke-width="2" stroke-linejoin="round" stroke-dasharray="3 7"/>
+  <g font-family="Inter,DejaVu Sans,sans-serif" fill="#93A9BB" font-size="11">
+    <text x="382" y="332">SENSE</text>
+    <text x="76" y="385">EFFEKTGRÄNS</text>
+    <text x="882" y="385">SENASTE SESSION · kWh</text>
+  </g>
+  <!-- Product-inspired rectangular Zaptec face, light ring and lower socket. -->
+  <ellipse cx="574" cy="352" rx="71" ry="12" fill="#040B12" opacity=".7"/>
+  <rect x="565" y="278" width="14" height="66" rx="3" fill="#273644"/>
+  <g filter="url(#shadow)">
+    <path d="M518 159H623Q630 159 630 168V330Q630 337 622 337H518Q510 337 510 329V168Q510 159 518 159Z" fill="#151A1E" stroke="#6A7479" stroke-width="1.2"/>
+    <rect x="513" y="162" width="113" height="172" rx="6" fill="url(#charger)"/>
+    <path d="M571 178C549 178 534 194 534 217V279C534 302 550 315 571 315C592 315 608 302 608 279V217C608 194 593 178 571 178Z" fill="#22272B" stroke="#080D11" stroke-width="2"/>
+    <circle cx="571" cy="215" r="24" fill="#252A2E" stroke="#626B70" stroke-width="2"/>
+    <circle cx="571" cy="215" r="22.5" stroke="#E2E9E9" stroke-width="1.4"/>
+    <path d="M566 208H579L565 222L582 218L562 225L573 211H566Z" fill="#0A1015"/>
+    <path d="M563 244H579V251C591 255 597 265 596 278C595 292 585 300 571 300C557 300 547 290 547 277C547 265 553 255 563 251Z" fill="#191E23" stroke="#090F13" stroke-width="1.8"/>
+    <path d="M563 297H580V307Q571 311 563 307Z" fill="#10171C" stroke="#475157"/>
+    <circle cx="604" cy="321" r="3.6" stroke="#C4CED1" stroke-width=".8"/>
+    <path d="M602 319H606L602 323H607" stroke="#C4CED1" stroke-width=".6"/>
+    <text x="610" y="323" fill="#C4CED1" font-family="Inter,DejaVu Sans,sans-serif" font-size="5.5">Zaptec</text>
+  </g>
+  <path d="M571 300V338C571 379 644 384 657 339L672 292C680 271 688 270 710 274" stroke="#030A10" stroke-width="11" stroke-linecap="round"/>
+  <path d="M571 300V338C571 379 644 384 657 339L672 292C680 271 688 270 710 274" stroke="#465961" stroke-width="5" stroke-linecap="round"/>
+  <!-- Two-tone Multivan, shown in front three-quarter view. -->
+  <ellipse cx="922" cy="345" rx="225" ry="18" fill="#020912" opacity=".85"/>
+  <g filter="url(#shadow)">
+    <!-- Long, tall side and contrasting black upper body -->
+    <path d="M701 233L714 185Q718 172 739 169L883 160Q915 158 937 175L1001 242L986 329L711 330Q700 325 699 312Z" fill="url(#van-red)" stroke="#9D6574" stroke-width="1.3"/>
+    <path d="M701 233L714 185Q718 172 739 169L883 160Q915 158 937 175L1001 242L703 249Z" fill="url(#van-black)" stroke="#657078"/>
+    <path d="M739 169L883 160Q950 155 1013 184L1096 236L1001 244L937 175Q915 158 883 160Z" fill="url(#van-black)" stroke="#5C676F"/>
+    <path d="M724 182Q799 162 887 166Q913 166 931 181" stroke="#929A9D" stroke-opacity=".45" stroke-width="2"/>
+    <!-- Side glazing: rear, sliding door, driver's window -->
+    <path d="M723 190L766 184L765 231L712 235Z" fill="url(#windows)" stroke="#4A565F" stroke-width="1.5"/>
+    <path d="M777 183L829 178L832 231L777 232Z" fill="url(#windows)" stroke="#4A565F" stroke-width="1.5"/>
+    <path d="M841 178L876 176L940 231L843 231Z" fill="url(#windows)" stroke="#4A565F" stroke-width="1.5"/>
+    <path d="M733 193L743 191L727 229L717 230ZM783 187L797 185L781 227Z" fill="#CDDCE1" opacity=".1"/>
+    <path d="M756 201H762V222H750V210Q750 201 756 201ZM807 196H818V218H802V204Q802 196 807 196Z" fill="#5C666C" opacity=".55"/>
+    <!-- Front windshield and bonnet -->
+    <path d="M892 178L1000 189L1088 234L997 239Z" fill="url(#windows)" stroke="#58676F" stroke-width="1.6"/>
+    <path d="M907 183L991 193L1067 230L1022 229Z" fill="#BCD0D8" opacity=".11"/>
+    <path d="M956 217L1022 231M1023 216L1063 231" stroke="#0C151C" stroke-width="2"/>
+    <path d="M997 239L1088 234L1122 245L1129 262L987 265Z" fill="#171F25" stroke="#4F5960"/>
+    <!-- Front face -->
+    <path d="M987 265L1129 262Q1138 279 1137 307L1129 331L986 341Z" fill="url(#van-front)" stroke="#8B495B"/>
+    <path d="M998 292L1129 288L1131 318L991 328Z" fill="#241922" stroke="#6E3144"/>
+    <path d="M1005 298L1124 294M1000 305L1126 301M997 312L1125 308M996 319L1122 315" stroke="#613044" stroke-width="2"/>
+    <path d="M1013 292L1004 326M1033 291L1024 325M1053 290L1044 324M1073 290L1064 322M1093 289L1084 322M1113 289L1104 320" stroke="#432335"/>
+    <path d="M989 330L1127 322L1125 335L991 345Z" fill="#121A20"/>
+    <!-- Chrome beltline and squared LED lights -->
+    <path d="M705 246L986 255L1129 252" stroke="#B0B9BD" stroke-width="2"/>
+    <path d="M988 256L1014 258L1010 273L989 270ZM1106 256L1128 255L1131 267L1109 271Z" fill="#D5EDF2" stroke="#7E969F"/>
+    <path d="M993 259L1008 261L1006 267L995 265ZM1110 259L1125 258L1127 264L1113 266Z" fill="#24343E"/>
+    <path d="M1014 263L1050 264M1074 263L1107 262" stroke="#D3E0E5" stroke-width="2"/>
+    <!-- VW roundel, outlined letters and Multivan plate -->
+    <circle cx="1062" cy="264" r="11" fill="#17222B" stroke="#B2C3CD" stroke-width="1.8"/>
+    <path d="M1056 258L1062 266L1068 258M1053 264L1058 272L1062 267L1066 272L1071 264" stroke="#B2C3CD" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M1040 299L1096 297V310L1040 313Z" fill="#3F454B" stroke="#78858C" stroke-width=".6"/>
+    <text x="1068" y="307" text-anchor="middle" fill="#B5C3CB" font-family="Inter,DejaVu Sans,sans-serif" font-size="5.8" letter-spacing=".6">MULTIVAN</text>
+    <!-- Panel seams, door handles, mirror and lower body sculpting -->
+    <path d="M772 238L771 309M838 237L844 309M943 239L955 292" stroke="#3F1829" stroke-width="1.2"/>
+    <path d="M782 255H796M815 255H829M903 257H918" stroke="#1D2329" stroke-width="4" stroke-linecap="round"/>
+    <path d="M782 284L910 288L930 305L783 299Z" fill="#E46C77" opacity=".17"/>
+    <path d="M714 312L931 320" stroke="#D16E7A" stroke-opacity=".5" stroke-width="1.5"/>
+    <path d="M915 219L941 221L953 233L926 235Z" fill="#1A232A" stroke="#5E6F77"/>
+    <path d="M701 251L707 252V270H701Z" fill="#C85260"/>
+    <!-- Tires with many-spoke machined alloys -->
+    <path d="M718 329a36 44 0 0 1 72 0M919 331a38 46 0 0 1 76 0" fill="#0C141C"/>
+    <g fill="#0C141B" stroke="#4B5860" stroke-width="2">
+      <ellipse cx="754" cy="317" rx="29" ry="38"/><ellipse cx="957" cy="321" rx="33" ry="42"/>
+    </g>
+    <g fill="#25333D" stroke="#B2C3CE" stroke-width="1.3">
+      <ellipse cx="754" cy="317" rx="21" ry="29"/><ellipse cx="957" cy="321" rx="24" ry="32"/>
+    </g>
+    <g stroke="#B2C3CE" stroke-width="1.1">
+      <path d="M754 288V346M733 317H775M739 296L769 338M739 338L769 296M746 290L762 344M735 306L773 328M735 328L773 306M746 344L762 290"/>
+      <path d="M957 289V353M933 321H981M940 298L974 344M940 344L974 298M948 291L966 351M935 309L979 333M935 333L979 309M948 351L966 291"/>
+    </g>
+    <ellipse cx="754" cy="317" rx="4" ry="6" fill="#AFC0CC"/><ellipse cx="957" cy="321" rx="5" ry="7" fill="#AFC0CC"/>
+    <rect x="702" y="265" width="16" height="18" rx="3" fill="#18252D" stroke="#A9808B"/>
+    <path d="M709 271V280" stroke="#7C969A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <!-- Metric cards deliberately contain no fabricated sample numbers. -->
+  <rect x="38" y="463" width="362" height="145" rx="17" fill="url(#card)" stroke="#3C536A"/>
+  <rect x="419" y="463" width="362" height="145" rx="17" fill="url(#charge-card)" stroke="#3C6A59"/>
+  <rect x="800" y="463" width="362" height="145" rx="17" fill="url(#card)" stroke="#3C536A"/>
+  <path d="M61 481H91" stroke="#80B6FF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M442 481H472" stroke="#73D9B1" stroke-width="3" stroke-linecap="round"/>
+  <path d="M823 481H853" stroke="#EAC075" stroke-width="3" stroke-linecap="round"/>
+  <g font-family="Inter,DejaVu Sans,sans-serif" font-size="13" letter-spacing="1.2" fill="#B1C2D1">
+    <text x="61" y="509">FASTIGHETENS EFFEKT</text>
+    <text x="442" y="509">LADDARENS EFFEKT</text>
+    <text x="823" y="509">LADDAT IDAG · SENSE</text>
+  </g>
+  <g font-family="Inter,DejaVu Sans,sans-serif" font-size="11" fill="#7D94A9">
+    <text x="61" y="592">Momentan avläsning</text>
+    <text x="442" y="592">Momentan avläsning</text>
+    <text x="823" y="592">Löpande dygnsenergi</text>
+    <text x="600" y="634" text-anchor="middle">— = ingen färsk observation · Illustrationen visar ingen batterinivå eller laddstatus</text>
+  </g>
+</svg>
