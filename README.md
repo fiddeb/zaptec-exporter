@@ -11,6 +11,9 @@ The [Zaptec Exporter custom integration](homeassistant/INTEGRATION.md) creates
 native Home Assistant sensors from the same cached endpoint, without extra
 Zaptec API requests or another copy of the account credentials.
 
+The [Grafana charging dashboard](dashboards/README.md) visualizes charging,
+phase readings, daily energy and collection health from the same Prometheus metrics.
+
 ## Configuration file (recommended)
 
 All settings, including credentials, can be supplied in one JSON file. No environment variables are required. Create a private local copy of the example:

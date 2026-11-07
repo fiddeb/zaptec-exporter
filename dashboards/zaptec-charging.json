@@ -1,0 +1,4096 @@
+{
+  "id": null,
+  "uid": "zaptec-charging-classic",
+  "title": "Zaptec · laddning och energi (klassisk)",
+  "description": "Laddning, Sense, dygnsenergi och datakvalitet. Ingen data är inte noll.",
+  "schemaVersion": 42,
+  "version": 1,
+  "editable": true,
+  "tags": [
+    "zaptec",
+    "charging",
+    "sense"
+  ],
+  "timezone": "Europe/Stockholm",
+  "graphTooltip": 1,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "links": [],
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": [
+      {
+        "type": "datasource",
+        "name": "datasource",
+        "label": "Prometheus",
+        "query": "prometheus",
+        "current": {
+          "text": "Grafana Cloud Prometheus",
+          "value": "grafanacloud-prom"
+        },
+        "refresh": 1,
+        "hide": 0
+      },
+      {
+        "type": "query",
+        "name": "instance",
+        "label": "Instans",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(up{job=\"zaptec\"}, instance)",
+        "query": {
+          "query": "label_values(up{job=\"zaptec\"}, instance)",
+          "refId": "instance"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "regex": "",
+        "multi": false,
+        "includeAll": true,
+        "allValue": ".*",
+        "options": [],
+        "current": {
+          "text": "homeassistant_zap",
+          "value": "homeassistant_zap"
+        }
+      },
+      {
+        "type": "query",
+        "name": "charger",
+        "label": "Laddare",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values({job=\"zaptec\",instance=~\"${instance:regex}\",charger_id!=\"\"}, charger_id)",
+        "query": {
+          "query": "label_values({job=\"zaptec\",instance=~\"${instance:regex}\",charger_id!=\"\"}, charger_id)",
+          "refId": "charger"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "regex": "",
+        "multi": false,
+        "includeAll": true,
+        "allValue": ".*",
+        "options": [],
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "type": "query",
+        "name": "installation",
+        "label": "Installation",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(zaptec_sense_reading_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\"}, installation_id)",
+        "query": {
+          "query": "label_values(zaptec_sense_reading_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\"}, installation_id)",
+          "refId": "installation"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "regex": "",
+        "multi": false,
+        "includeAll": true,
+        "allValue": ".*",
+        "options": [],
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1000,
+      "type": "row",
+      "title": "Översikt",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 1,
+      "title": "Laddningen · fastighet, laddbox och bil",
+      "type": "canvas",
+      "description": "Ögonblicksvärden och dygnsenergi har olika tidsbetydelse. Ingen färsk avläsning visas som —, aldrig som noll. Bilen är en illustration; batterinivå hämtas inte.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 15,
+        "h": 16
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_power_watts{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Installation kW",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_power_watts{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Charge kW",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_charge_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Today kWh",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_last_session_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Last session kWh",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_power_limit_watts{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Limit kW",
+          "refId": "E"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kW",
+          "decimals": 2,
+          "noValue": "—",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#F4F5F8"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Today kWh"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:kWh"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last session kWh"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:kWh"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "inlineEditing": false,
+        "panZoom": false,
+        "zoomToContent": true,
+        "showAdvancedTypes": false,
+        "tooltip": {
+          "disableForOneClick": false
+        },
+        "root": {
+          "type": "frame",
+          "name": "Zaptec charging",
+          "placement": {
+            "left": 0,
+            "top": 0,
+            "width": 1200,
+            "height": 650
+          },
+          "constraint": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "background": {
+            "color": {
+              "fixed": "transparent"
+            }
+          },
+          "border": {
+            "color": {
+              "fixed": "transparent"
+            }
+          },
+          "elements": [
+            {
+              "name": "charging-scene",
+              "type": "rectangle",
+              "placement": {
+                "left": 0,
+                "top": 0,
+                "width": 1200,
+                "height": 650
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "image": {
+                  "fixed": "https://raw.githubusercontent.com/fiddeb/zaptec-exporter/426050af085f97ce8c6c78b97c0b488cd6af60a8/dashboards/assets/charging-scene.svg"
+                },
+                "size": "fill"
+              },
+              "border": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "width": 0,
+                "radius": 0
+              },
+              "config": {
+                "align": "center",
+                "valign": "middle",
+                "size": 18,
+                "color": {
+                  "fixed": "#F4F5F8"
+                },
+                "text": {
+                  "mode": "fixed",
+                  "fixed": ""
+                }
+              }
+            },
+            {
+              "name": "house-power",
+              "type": "metric-value",
+              "placement": {
+                "left": 61,
+                "top": 520,
+                "width": 310,
+                "height": 58
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "width": 0,
+                "radius": 0
+              },
+              "config": {
+                "align": "center",
+                "valign": "middle",
+                "size": 42,
+                "color": {
+                  "fixed": "#F4F5F8"
+                },
+                "text": {
+                  "mode": "field",
+                  "fixed": "",
+                  "field": "Installation kW"
+                }
+              }
+            },
+            {
+              "name": "charger-power",
+              "type": "metric-value",
+              "placement": {
+                "left": 442,
+                "top": 520,
+                "width": 310,
+                "height": 58
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "width": 0,
+                "radius": 0
+              },
+              "config": {
+                "align": "center",
+                "valign": "middle",
+                "size": 42,
+                "color": {
+                  "fixed": "#F4F5F8"
+                },
+                "text": {
+                  "mode": "field",
+                  "fixed": "",
+                  "field": "Charge kW"
+                }
+              }
+            },
+            {
+              "name": "car-today",
+              "type": "metric-value",
+              "placement": {
+                "left": 823,
+                "top": 520,
+                "width": 310,
+                "height": 58
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "width": 0,
+                "radius": 0
+              },
+              "config": {
+                "align": "center",
+                "valign": "middle",
+                "size": 42,
+                "color": {
+                  "fixed": "#F4F5F8"
+                },
+                "text": {
+                  "mode": "field",
+                  "fixed": "",
+                  "field": "Today kWh"
+                }
+              }
+            },
+            {
+              "name": "limit-value",
+              "type": "metric-value",
+              "placement": {
+                "left": 76,
+                "top": 393,
+                "width": 210,
+                "height": 35
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "width": 0,
+                "radius": 0
+              },
+              "config": {
+                "align": "center",
+                "valign": "middle",
+                "size": 23,
+                "color": {
+                  "fixed": "#F4F5F8"
+                },
+                "text": {
+                  "mode": "field",
+                  "fixed": "",
+                  "field": "Limit kW"
+                }
+              }
+            },
+            {
+              "name": "session-value",
+              "type": "metric-value",
+              "placement": {
+                "left": 882,
+                "top": 393,
+                "width": 260,
+                "height": 35
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "width": 0,
+                "radius": 0
+              },
+              "config": {
+                "align": "center",
+                "valign": "middle",
+                "size": 23,
+                "color": {
+                  "fixed": "#F4F5F8"
+                },
+                "text": {
+                  "mode": "field",
+                  "fixed": "",
+                  "field": "Last session kWh"
+                }
+              }
+            }
+          ],
+          "connections": []
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 2,
+      "title": "Laddat idag · Sense",
+      "type": "stat",
+      "description": "Löpande summa i svensk kalenderdag, till senaste hämtningen.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 15,
+        "y": 1,
+        "w": 9,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_charge_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 3,
+      "title": "Laddat igår · Sense",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 15,
+        "y": 5,
+        "w": 9,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_charge_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"yesterday\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 4,
+      "title": "Senaste sessionen · laddbox",
+      "type": "stat",
+      "description": "Energin i senast arkiverade sessionen. Är inte samma mått som hela gårdagens laddning.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 15,
+        "y": 9,
+        "w": 9,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_last_session_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 5,
+      "title": "Sense · avläsningens ålder",
+      "type": "stat",
+      "description": "API:t kan svara OK trots att själva avläsningen är äldre. Standardgränsen för fas- och effektvärden är 10 minuter.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 15,
+        "y": 13,
+        "w": 9,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time() - zaptec_sense_reading_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 300
+              },
+              {
+                "color": "red",
+                "value": 600
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 6,
+      "title": "Alloy → exporter",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ej tillgänglig",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Fel / inaktuell",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 7,
+      "title": "Laddarens API",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 17,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ej tillgänglig",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Fel / inaktuell",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 8,
+      "title": "Sessionsarkiv",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 17,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ej tillgänglig",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Fel / inaktuell",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 9,
+      "title": "Sense API",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 17,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ej tillgänglig",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Fel / inaktuell",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 10,
+      "title": "Laddenergi idag · förlopp",
+      "type": "timeseries",
+      "description": "Gauge som nollställs vid lokal midnatt. Ingen rate/increase används. Historik börjar när Alloy började samla in.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_charge_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Laddning idag",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Laddning idag"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 1001,
+      "type": "row",
+      "title": "Laddning",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 11,
+      "title": "Laddareffekt",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_power_watts{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kW",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 12,
+      "title": "Aktiv sessionsenergi",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 29,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_session_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 13,
+      "title": "Tilldelad laddström",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 29,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_current_limit_amperes{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 14,
+      "title": "Laddläge",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 29,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charger_operation_mode{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Ingen bil ansluten",
+                  "color": "gray",
+                  "index": 0
+                },
+                "2": {
+                  "text": "Väntar på laddning",
+                  "color": "orange",
+                  "index": 1
+                },
+                "3": {
+                  "text": "Laddar",
+                  "color": "green",
+                  "index": 2
+                },
+                "5": {
+                  "text": "Laddning avslutad",
+                  "color": "blue",
+                  "index": 3
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 15,
+      "title": "Effekt · laddare och fastighet",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_power_watts{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Laddare",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_power_watts{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fastighet",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_power_limit_watts{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"} / 1000) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Effektgräns",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kW",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Laddare"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fastighet"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Effektgräns"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#A8B3C7"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 16,
+      "title": "Laddarens utström",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 41,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_current_amperes{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fas {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 17,
+      "title": "Laddarens utspänning",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 41,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_voltage_volts{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fas {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "volt",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 18,
+      "title": "Laddläge över tid",
+      "type": "state-timeline",
+      "description": "Saknade eller gamla observationer visas som luckor; avsaknad av laddning antas inte betyda att bilen är frånkopplad.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 49,
+        "w": 24,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charger_operation_mode{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Laddläge",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "noValue": "Ingen aktuell observation",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Ingen bil ansluten",
+                  "color": "gray",
+                  "index": 0
+                },
+                "2": {
+                  "text": "Väntar på laddning",
+                  "color": "orange",
+                  "index": 1
+                },
+                "3": {
+                  "text": "Laddar",
+                  "color": "green",
+                  "index": 2
+                },
+                "5": {
+                  "text": "Laddning avslutad",
+                  "color": "blue",
+                  "index": 3
+                }
+              }
+            }
+          ],
+          "custom": {
+            "spanNulls": false,
+            "lineWidth": 0,
+            "fillOpacity": 85
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "auto",
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 1002,
+      "type": "row",
+      "title": "Faser",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 19,
+      "title": "Fastighetens fasströmmar",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 55,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_current_amperes{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fas {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 20,
+      "title": "Fastighetens fasspänningar",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 55,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_voltage_volts{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fas {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "volt",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 21,
+      "title": "Laddström enligt Sense",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_charge_current_amperes{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fas {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 22,
+      "title": "Tillgänglig laddström per fas",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 63,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_available_current_amperes{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fas {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fas 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 23,
+      "title": "Neutralström",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 71,
+        "w": 12,
+        "h": 7
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_neutral_current_amperes{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Neutral",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Neutral"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 24,
+      "title": "Så ska faserna läsas",
+      "type": "text",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 71,
+        "w": 12,
+        "h": 7
+      },
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Sense visar fastighetens ström och spänning. **Laddström** och **tillgänglig ström** är separata värden.\n\n- Historik byggs av Prometheus från insamlingsstart.\n- Saknade fasvärden är inte noll.\n- Färg: **fas 1 gul**, **fas 2 grön**, **fas 3 blå**.\n- Fasström × spänning är inte automatiskt aktiv effekt; dashboarden hittar inte på kWh per fas."
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 1003,
+      "type": "row",
+      "title": "Energi & sessioner",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 78,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 25,
+      "title": "Fastighet · idag",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 79,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_total_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 26,
+      "title": "Fastighet · igår",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 79,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_total_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"yesterday\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 27,
+      "title": "Bilens andel idag · Sense",
+      "type": "stat",
+      "description": "Laddenergi / rapporterad totalenergi. Visas inte när totalenergin är noll eller saknas.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 79,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "100 * ((zaptec_sense_charge_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)) / ((zaptec_sense_total_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) > 0)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 28,
+      "title": "Arkiverad laddenergi · sedan start",
+      "type": "stat",
+      "description": "Summa för det konfigurerade arkivintervallet. Kan minska vid rättelser. Inte förbrukning under vald Grafana-period.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 79,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_completed_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 29,
+      "title": "Dagens energi · löpande dygnssummor",
+      "type": "timeseries",
+      "description": "Summorna startar om vid lokal midnatt. De adderas inte över skrapningar.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 83,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_total_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fastighet",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_sense_charge_energy_kwh{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\",period=\"today\"}) and on (job, instance) (zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Laddning",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kWh",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fastighet"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Laddning"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 30,
+      "title": "Arkiverade sessioner",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 91,
+        "w": 8,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_completed_sessions{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 31,
+      "title": "Senaste session · ansluten tid",
+      "type": "stat",
+      "description": "Tid från sessionsstart till slut inklusive pauser. Är inte aktiv laddtid.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 91,
+        "w": 8,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(zaptec_charge_last_session_duration_seconds{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 32,
+      "title": "Senaste session · avslutad",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 91,
+        "w": 8,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "((zaptec_charge_last_session_end_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\",charger_id=~\"${charger:regex}\"}) and on (job, instance) (zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1) and on (job, instance) (up{job=\"zaptec\",instance=~\"${instance:regex}\"} == 1)) * 1000",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsLocal",
+          "decimals": 0,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 33,
+      "title": "Dygn, session och månad är olika mått",
+      "type": "text",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 95,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Sense idag/igår** är energi per kalenderdygn. **Senaste sessionen** är laddboxens avslutade session och kan sträcka sig över midnatt. **Arkiverad laddenergi** är en korrigerbar summa sedan det inställda startdatumet.\n\nExakta **månads-kWh finns ännu inte som metric** i den här exporter-versionen. De kan beräknas ur sessionsarkivet separat; `increase()` eller `rate()` på dessa gauges ger inte en tillförlitlig månadssumma. Tidigare hämtade JSON-filer importeras inte automatiskt till Prometheus."
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 1004,
+      "type": "row",
+      "title": "Datakvalitet",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 101,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 34,
+      "title": "Hämtningar · ålder sedan senaste lyckade anrop",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 102,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time() - (zaptec_exporter_last_success_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\"} > 0)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Laddare",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time() - (zaptec_exporter_history_last_success_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\"} > 0)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Arkiv",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time() - (zaptec_exporter_sense_last_success_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\"} > 0)",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Sense",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Laddare"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#73D9B1"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Arkiv"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sense"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#80B6FF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 35,
+      "title": "Sense · mätvärdets ålder",
+      "type": "timeseries",
+      "description": "Åldern gäller själva avläsningen. En lyckad hämtning föryngrar inte gammal mätdata.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 102,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time() - zaptec_sense_reading_timestamp_seconds{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Fasavläsning",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 2,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "insertNulls": false,
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fasavläsning"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#EAC075"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 36,
+      "title": "Insamlingsstatus över tid",
+      "type": "state-timeline",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 110,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Exporter",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_exporter_up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Laddare",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_exporter_history_up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Arkiv",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_exporter_sense_up{job=\"zaptec\",instance=~\"${instance:regex}\"}",
+          "instant": false,
+          "range": true,
+          "legendFormat": "Sense",
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "noValue": "Ej tillgänglig",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Fel / inaktuell",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "custom": {
+            "spanNulls": false,
+            "lineWidth": 0,
+            "fillOpacity": 85
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "auto",
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 37,
+      "title": "Täckning · energins timintervall",
+      "type": "stat",
+      "description": "Idag betyder komplett fram till senaste hämtningen, inte att hela kalenderdagen är avslutad.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 116,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "zaptec_sense_energy_complete{job=\"zaptec\",instance=~\"${instance:regex}\",installation_id=~\"${installation:regex}\"}",
+          "instant": true,
+          "range": false,
+          "legendFormat": "{{kind}} · {{period}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Saknade timmar",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "Komplett",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total · today"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Fastighet · idag"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total · yesterday"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Fastighet · igår"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "charge · today"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Laddning · idag"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "charge · yesterday"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Laddning · igår"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    },
+    {
+      "id": 38,
+      "title": "Ingen data är inte noll",
+      "type": "text",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 120,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "noValue": "Ingen färsk data",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "- **Alloy → exporter** visar om skrapningen fungerar; de tre API-statusarna visar hämtningarna var för sig.\n- API-pollning är normalt **5 minuter** och Alloy-skrapning **1 minut**. Tätare skrapning orsakar inga extra Zaptec-anrop.\n- Din startbild kan visa dygnsenergi trots att effekt- och fasvärden saknas: de har olika tidsstämplar och färskhetsregler.\n- Grafer visar stegvisa avläsningar utan påhittade mellanvärden.\n- Kostnad i kronor och bilens batteriprocent visas inte: sådant underlag finns inte i dessa metrics."
+      },
+      "pluginVersion": "13.3.0",
+      "links": []
+    }
+  ]
+}
