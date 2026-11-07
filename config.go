@@ -42,9 +42,9 @@ type config struct {
 
 func loadConfig(path string, required bool, getenv func(string) string) (config, error) {
 	raw := fileConfig{
-		Mode: "rest", ListenAddr: ":8080", PollInterval: "5m", StaleAfter: "10m",
+		Mode: "rest", ListenAddr: ":8080", PollInterval: "1m", StaleAfter: "10m",
 		HistoryEnabled: true, HistoryFrom: "1970-01-01T00:00:00Z",
-		HistoryInterval: "5m", HistoryFile: "zaptec-history.json",
+		HistoryInterval: "1m", HistoryFile: "zaptec-history.json",
 		SenseInterval: "5m", SenseTimezone: "Europe/Stockholm",
 	}
 	f, err := os.Open(path)

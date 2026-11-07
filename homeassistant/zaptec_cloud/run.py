@@ -44,7 +44,7 @@ def child_environment():
 def settings(options, data_dir):
     if not isinstance(options, dict):
         raise ValueError("Options must be an object")
-    poll = seconds(options, "poll_interval", 300)
+    poll = seconds(options, "poll_interval", 60, minimum=60)
     config = {
         "username": text(options, "username"),
         "password": text(options, "password"),
@@ -52,10 +52,10 @@ def settings(options, data_dir):
         "mode": "rest",
         "listen_addr": ":8080",
         "poll_interval": f"{poll}s",
-        "stale_after": f"{2 * poll}s",
+        "stale_after": f"{max(600, 2 * poll)}s",
         "history_enabled": boolean(options, "history_enabled", True),
         "history_from": text(options, "history_from", "1970-01-01T00:00:00Z"),
-        "history_interval": f"{seconds(options, 'history_interval', 300)}s",
+        "history_interval": f"{seconds(options, 'history_interval', 60, minimum=60)}s",
         "history_file": str(data_dir / "zaptec-history.json"),
         "sense_enabled": boolean(options, "sense_enabled", False),
         "sense_interval": f"{seconds(options, 'sense_interval', 300)}s",

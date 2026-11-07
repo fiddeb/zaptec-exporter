@@ -4,9 +4,10 @@ This local app follows the same layout as the myUplink Cloud telemetry app:
 a Go exporter with optional Grafana Alloy in a Supervisor-managed container.
 It supports `aarch64` (including Raspberry Pi 5 with 64-bit HAOS) and `amd64`.
 
-The exporter polls charger state, archived sessions and optional Sense data
-every **300 seconds**. Alloy scrapes the cached `/metrics` endpoint every
-**60 seconds** by default and forwards samples with Prometheus remote write.
+The exporter polls charger state and archived sessions every **60 seconds**.
+Optional experimental Sense data is polled every **300 seconds**. Alloy scrapes
+the cached `/metrics` endpoint every **60 seconds** by default and forwards
+samples with Prometheus remote write.
 Scraping does not cause extra Zaptec calls. The app Log tab contains exporter
 and Alloy logs.
 
@@ -40,16 +41,35 @@ work, package this checkout and transfer the resulting folder to
 The app needs internet access, but no host networking, Docker socket,
 Home Assistant API token or privileged access.
 
+## Update to 0.2.0
+
+Run the installation/update command above, check for local app updates, then
+update/rebuild Zaptec Cloud telemetry. Do not uninstall the app. Saved options
+are retained, including any previous 300-second intervals. In Configuration,
+change only these fields, then save and restart:
+
+```yaml
+poll_interval: 60
+history_interval: 60
+sense_interval: 300
+scrape_interval: 60
+```
+
+With the default dashboard refresh, detection is normally one polling interval
+plus up to one scrape interval and one dashboard refresh (up to roughly three
+minutes, plus network/API delays). Lowering API polling does not change the
+five-minute Sense interval or guarantee that Zaptec publishes observations immediately.
+
 ## Options
 
 | Option | Value |
 | --- | --- |
 | `username`, `password` | Your Zaptec account credentials. |
 | `charger_id` | Charger UUID or hardware serial, such as `ZAG000001`. |
-| `poll_interval` | Charger polling delay in seconds; default `300`. |
+| `poll_interval` | Charger polling delay in seconds; default/minimum `60`. |
 | `history_enabled` | Fetch completed sessions; default `true`. Charger owner permission is required. |
 | `history_from` | Inclusive session end-time coverage start; default `1970-01-01T00:00:00Z`. |
-| `history_interval` | Archive polling delay in seconds; default `300`. |
+| `history_interval` | Archive polling delay in seconds; default/minimum `60`. |
 | `sense_enabled` | Enable Sense explicitly; default `false`. Requires a Sense-equipped installation and uses the experimental undocumented endpoint. |
 | `sense_interval` | Sense polling delay in seconds; default `300`. Failures back off. |
 | `sense_timezone` | Calendar-day timezone; default `Europe/Stockholm`. |
@@ -60,8 +80,9 @@ Home Assistant API token or privileged access.
 | `instance` | Stable metric label; default `homeassistant`. |
 | `scrape_interval` | Alloy cache scrape interval in seconds; default `60`. |
 
-All API intervals have a minimum of 300 seconds in the app. The ordinary
-observation freshness limit is twice the charger poll interval. Sense phase
+Charger and archive intervals have a minimum of 60 seconds in the app; Sense
+retains its 300-second minimum. The ordinary observation freshness limit is the
+larger of ten minutes and twice the charger poll interval. Sense phase
 and power freshness is twice the Sense interval. API polling and Alloy scraping
 are independent.
 

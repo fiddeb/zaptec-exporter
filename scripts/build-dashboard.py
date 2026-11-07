@@ -225,7 +225,7 @@ def build():
     coverage["targets"][0]["legendFormat"]="{{kind}} · {{period}}"
     for kind,label in (("total","Fastighet"),("charge","Laddning")):
         for period,day in (("today","idag"),("yesterday","igår")):override(coverage["fieldConfig"],f"{kind} · {period}",displayName=f"{label} · {day}")
-    b.note("Ingen data är inte noll","- **Alloy → exporter** visar om skrapningen fungerar; de tre API-statusarna visar hämtningarna var för sig.\n- API-pollning är normalt **5 minuter** och Alloy-skrapning **1 minut**. Tätare skrapning orsakar inga extra Zaptec-anrop.\n- Din startbild kan visa dygnsenergi trots att effekt- och fasvärden saknas: de har olika tidsstämplar och färskhetsregler.\n- Grafer visar stegvisa avläsningar utan påhittade mellanvärden.\n- Kostnad i kronor och bilens batteriprocent visas inte: sådant underlag finns inte i dessa metrics.",0,18,24,6)
+    b.note("Ingen data är inte noll","- **Alloy → exporter** visar om skrapningen fungerar; de tre API-statusarna visar hämtningarna var för sig.\n- API-pollning är normalt **1 minut för laddare/historik**, **5 minuter för Sense**, och Alloy-skrapning **1 minut**. Tätare skrapning orsakar inga extra Zaptec-anrop.\n- Din startbild kan visa dygnsenergi trots att effekt- och fasvärden saknas: de har olika tidsstämplar och färskhetsregler.\n- Grafer visar stegvisa avläsningar utan påhittade mellanvärden.\n- Kostnad i kronor och bilens batteriprocent visas inte: sådant underlag finns inte i dessa metrics.",0,18,24,6)
     return b
 
 

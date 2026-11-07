@@ -3,8 +3,8 @@
 The `zaptec_exporter` custom integration reads the Go exporter's cached
 Prometheus `/metrics` endpoint, the same snapshot that Alloy scrapes. All
 entities share one local HTTP request every 30 seconds. Zaptec API polling
-remains every five minutes; no additional Zaptec calls or Grafana credentials
-are needed for the integration.
+defaults to one minute for charger state/history and five minutes for Sense;
+no additional Zaptec calls or Grafana credentials are needed for the integration.
 
 This follows the myUplink Exporter custom-integration model. It is a separate,
 read-only integration for Home Assistant Core, alongside the Supervisor app.
@@ -29,8 +29,8 @@ and operation on the target HAOS host still require verification.
 4. Open **Settings → Devices & services → Add integration → Zaptec Exporter**.
 5. Enter `http://local-zaptec-cloud:8080`. Verify the app's actual **Hostname**
    on its Info tab. `localhost` points to Core's container, not the exporter app.
-6. Keep maximum API snapshot age at `900` seconds for the default five-minute
-   API intervals. For longer intervals, use a threshold longer than the
+6. Keep maximum API snapshot age at `900` seconds for the default one-minute
+   charger/history and five-minute Sense intervals. For longer intervals, use a threshold longer than the
    longest configured poll interval plus its request timeout.
 
 Create a ZIP for transfer from this checkout:

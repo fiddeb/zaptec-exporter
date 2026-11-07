@@ -4,8 +4,8 @@ Read-only Go exporter for Zaptec Go, with shared state storage and two source mo
 
 For Home Assistant OS, use the [Zaptec Cloud telemetry app](homeassistant/zaptec_cloud/DOCS.md).
 It packages this exporter with optional Grafana Alloy, following the myUplink
-app layout. API polling defaults to five minutes; Alloy scrapes the cache every
-minute. It can also be scraped by an existing Alloy instance.
+app layout. Charger state and session history default to one-minute polling; experimental
+Sense polling stays at five minutes. Alloy scrapes the cache every minute. It can also be scraped by an existing Alloy instance.
 
 The [Zaptec Exporter custom integration](homeassistant/INTEGRATION.md) creates
 native Home Assistant sensors from the same cached endpoint, without extra
@@ -76,7 +76,7 @@ go run .
 curl http://localhost:8080/metrics
 ```
 
-Default REST polling: `5m`; `ZAPTEC_POLL_INTERVAL` changes it (minimum 30s). `ZAPTEC_STALE_AFTER` defaults to `10m`, leaving time for the next five-minute poll to finish. `LISTEN_ADDR` defaults to `:8080`. `go test ./...` works without external dependencies.
+Default REST polling: `1m`; `ZAPTEC_POLL_INTERVAL` changes it (minimum 30s). `ZAPTEC_STALE_AFTER` defaults to `10m`, preserving a ten-minute observation freshness window independently of the faster poll interval. `LISTEN_ADDR` defaults to `:8080`. `go test ./...` works without external dependencies.
 
 `charger_id` accepts either the charger UUID or its hardware serial number (for example `ZAG000001`). A serial number is resolved at startup using the authenticated charger's list; only an exact `deviceId` match is used. The resulting UUID is used for live state, archived sessions, AMQP filtering, cache identity and metric labels. If there is no unique match, startup stops with an explanatory error. UUID configuration skips the list lookup.
 
@@ -90,7 +90,7 @@ History synchronization is enabled by default in both source modes. It uses [`GE
 | --- | --- | --- |
 | `ZAPTEC_HISTORY_ENABLED` | `true` | Set to `false` for live metrics only. |
 | `ZAPTEC_HISTORY_FROM` | `1970-01-01T00:00:00Z` | Fixed inclusive lower bound on session end time, in RFC3339 format. Set a later start to limit backfill. |
-| `ZAPTEC_HISTORY_INTERVAL` | `5m` | Delay between synchronizations; minimum `1m`. |
+| `ZAPTEC_HISTORY_INTERVAL` | `1m` | Delay between synchronizations; minimum `1m`. |
 | `ZAPTEC_HISTORY_FILE` | `zaptec-history.json` | Persistent accounting cache; parent directory must exist and be writable. Mount it on persistent storage in containers. |
 
 Each synchronization rereads the complete configured interval up to its start time. This catches delayed offline sessions and corrections to old sessions without relying on a moving lookback window. Pages are deduplicated by session ID; voided or replaced sessions are excluded from totals. A run is limited to five minutes and 1,000 pages of 50 sessions; if this is insufficient, narrow the configured range. Respect API fair-use limits when selecting the interval.
@@ -122,7 +122,7 @@ Sense uses the undocumented `/api/installation/{id}/energySensorData` endpoint d
 "sense_timezone": "Europe/Stockholm"
 ```
 
-Sense is disabled by default. When enabled, it fetches immediately, then waits five minutes between successful requests. The interval must be at least `5m`. Charger state and archived sessions also default to five-minute intervals. Prometheus scrapes only the in-memory cache and never trigger API requests.
+Sense is disabled by default. When enabled, it fetches immediately, then waits five minutes between successful requests. The interval must be at least `5m`. Charger state and archived sessions default to one-minute intervals. Prometheus scrapes only the in-memory cache and never trigger API requests.
 
 The installation UUID is looked up from the configured charger once per process. Each Sense request covers yesterday's local midnight through the retrieval time, with `resolution=day1`. This supplies both the latest phase readings and hourly energy intervals in one request. Local calendar-day boundaries use `sense_timezone`, including 23/25-hour daylight-saving days; timezone data is bundled with the binary.
 

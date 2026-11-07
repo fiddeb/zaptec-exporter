@@ -27,8 +27,8 @@ class AppTests(unittest.TestCase):
     def test_exporter_only_defaults_and_persistence(self):
         config, alloy = run.settings(self.options(False), Path("/data"))
         self.assertIsNone(alloy)
-        self.assertEqual(config["poll_interval"], "300s")
-        self.assertEqual(config["history_interval"], "300s")
+        self.assertEqual(config["poll_interval"], "60s")
+        self.assertEqual(config["history_interval"], "60s")
         self.assertEqual(config["sense_interval"], "300s")
         self.assertEqual(config["stale_after"], "600s")
         self.assertFalse(config["sense_enabled"])
@@ -61,11 +61,27 @@ class AppTests(unittest.TestCase):
         self.assertEqual(config["sense_interval"], "600s")
         self.assertTrue(config["sense_enabled"])
 
+    def test_one_minute_documented_apis_keep_sense_at_five_minutes(self):
+        options = self.options(False)
+        options.update(poll_interval=60, history_interval=60, sense_interval=300)
+        config, _ = run.settings(options, Path("/data"))
+        self.assertEqual(config["poll_interval"], "60s")
+        self.assertEqual(config["history_interval"], "60s")
+        self.assertEqual(config["sense_interval"], "300s")
+        self.assertEqual(config["stale_after"], "600s")
+
+    def test_saved_intervals_are_preserved(self):
+        options = self.options(False)
+        options.update(poll_interval=300, history_interval=300)
+        config, _ = run.settings(options, Path("/data"))
+        self.assertEqual(config["poll_interval"], "300s")
+        self.assertEqual(config["history_interval"], "300s")
+
     def test_invalid_options(self):
         changes = (
             dict(username=""), dict(password=""), dict(charger_id=""),
-            dict(poll_interval=299), dict(poll_interval=True), dict(poll_interval="300"),
-            dict(history_interval=0), dict(sense_interval=299), dict(sense_enabled="false"),
+            dict(poll_interval=59), dict(poll_interval=True), dict(poll_interval="300"),
+            dict(history_interval=59), dict(sense_interval=299), dict(sense_enabled="false"),
             dict(cloud_enabled="false"), dict(history_enabled=1), dict(metrics_token=""),
             dict(metrics_url="http://example.com"), dict(metrics_url="https://user:secret@example.com"),
             dict(scrape_interval=1), dict(instance=""), dict(sense_timezone=""),

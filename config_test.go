@@ -48,7 +48,7 @@ func TestMinimalConfigDefaultsAndExplicitFalse(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if cfg.Mode != "rest" || cfg.PollInterval != 5*time.Minute || cfg.StaleAfter != 10*time.Minute || cfg.ListenAddr != ":8080" || cfg.HistoryEnabled != history {
+		if cfg.Mode != "rest" || cfg.PollInterval != time.Minute || cfg.StaleAfter != 10*time.Minute || cfg.ListenAddr != ":8080" || cfg.HistoryEnabled != history {
 			t.Fatal("incorrect defaults or ignored explicit false")
 		}
 	}
@@ -104,7 +104,7 @@ func TestConfigRejectsInvalidInputWithoutLeakingPassword(t *testing.T) {
 func TestSenseConfigDefaultsOverridesAndValidation(t *testing.T) {
 	base := `{"username":"user","password":"password","charger_id":"charger"`
 	cfg, err := loadConfig(writeConfig(t, base+`}`), true, noEnv)
-	if err != nil || cfg.SenseEnabled || cfg.PollInterval != 5*time.Minute || cfg.HistoryInterval != 5*time.Minute {
+	if err != nil || cfg.SenseEnabled || cfg.PollInterval != time.Minute || cfg.HistoryInterval != time.Minute {
 		t.Fatalf("unexpected defaults: %v", err)
 	}
 	cfg, err = loadConfig(writeConfig(t, base+`,"sense_enabled":true}`), true, noEnv)

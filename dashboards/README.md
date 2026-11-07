@@ -65,7 +65,8 @@ Exporter-appen behöver inte uppdateras.
   igen. Status och tidsstämplar finns kvar för felsökning.
 - Grafhistorik börjar när Prometheus började samla in. Tidigare exporterade
   JSON-filer ger ingen automatisk återfyllning av tidsserier.
-- API-pollning var femte minut och skrapning/uppdatering varje minut fungerar
+- API-pollning varje minut för laddare/historik, var femte minut för Sense
+  och skrapning/uppdatering varje minut fungerar
   tillsammans: dashboarden gör inga direkta Zaptec-anrop.
 
 ## Underhåll
